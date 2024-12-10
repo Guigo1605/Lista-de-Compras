@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lista de Compras</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f4f4f4;
+            color: #333;
+            margin: 0;
+            display: flex;
+            height: 100vh;
+        }
+
+        .container {
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            width: 100%;
+        }
+
+        .coluna {
+            padding: 20px;
+            flex: 1;
+            max-width: 600px;
+            box-sizing: border-box;
+        }
+
+        .coluna-central {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            max-width: 800px;
+            flex: 1.5;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+        }
+
+        h1 {
+            text-align: center;
+            color: #28a745;
+        }
+
+        .input-container {
+            display: flex;
+            margin-bottom: 20px;
+        }
+
+        input[type="text"], input[type="url"] {
+            flex-grow: 1;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            margin-right: 10px;
+        }
+
+        button {
+            padding: 10px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #218838;
+        }
+
+        #listaProdutos {
+            list-style-type: none;
+            padding: 0;
+            flex-grow: 1;
+            overflow-y: auto;
+            margin: 0;
+            width: 100%;
+        }
+
+        li {
+            background-color: white;
+            margin: 5px 0;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            transition: background-color 0.3s;
+        }
+
+        li:hover {
+            background-color: #f1f1f1;
+        }
+
+        .remove {
+            background-color: #dc3545;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            padding: 5px 10px;
+            font-size: 14px;
+            transition: background-color 0.3s;
+            margin-left: 20px;
+        }
+
+        .remove:hover {
+            background-color: #c82333;
+        }
+
+        .comprado {
+            text-decoration: line-through;
+            color: #6c757d;
+        }
+
+        .produto-texto {
+            flex-grow: 1;
+            margin-left: 10px;
+            font-size: 16px;
+            padding-left: 5px;
+        }
+
+        .checkbox-container {
+            display: flex;
+            align-items: center;
+            margin-right: 10px;
+        }
+
+        input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+            margin: 0;
+        }
+
+        .preco-input, .quantidade-input {
+            width: 80px;
+            margin-left: 10px;
+            padding: 5px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        .valor-container {
+            display: flex;
+            align-items: center;
+            margin-left: 10px;
+        }
+
+        .limpar-todos {
+            background-color: #ffc107;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            padding: 10px;
+            text-align: center;
+            display: block;
+            width: 100%;
+            transition: background-color 0.3s;
+            margin-top: 10px;
+        }
+
+        .limpar-todos:hover {
+            background-color: #e0a800;
+        }
+
+        .pre-cadastrados {
+            display: none;
+            margin-top: 10px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        .pre-cadastrados ul {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-top: 10px;
+            padding-left: 0;
+            list-style-type: none;
+            justify-items: center;
+        }
+
+        .item-pre-cadastrado {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            cursor: pointer;
+        }
+
+        .item-pre-cadastrado img {
+            width: 40px;
+            height: 40px;
+            margin-right: 5px;
+        }
+
+        .btn-pre-cadastro {
+            width: 30%;
+            height: 30%;
+            padding: 0;
+            background-color: #007bff;
+            border: none;
+            color: white;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .btn-pre-cadastro img {
+            width: 80%;
+            height: 80%;
+            margin: 5px;
+        }
+
+        .btn-pre-cadastro:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="coluna">
+            <button class="btn-pre-cadastro" id="mostrarPreCadastrados">
+                <img src="imagens/pre-cadastro.png" alt="Pré-Cadastro">
+            </button>
+            <div class="pre-cadastrados" id="preCadastrados">
+                <ul id="listaPreCadastrados">
+                    <li class="item-pre-cadastrado">
+                        <img src="imagens/acucar.png" alt="Açúcar">
+                        Açúcar
+                    </li>
+                    <li class="item-pre-cadastrado">
+                        <img src="imagens/arroz.png" alt="Arroz">
+                        Arroz
+                    </li>
+                    <li class="item-pre-cadastrado">
+                        <img src="imagens/batata.png" alt="Batata">
+                        Batata
+                    </li>
+                    <li class="item-pre-cadastrado">
+                        <img src="imagens/carne.png" alt="Carne">
+                        Carne
+                    </li>
+                    <li class="item-pre-cadastrado">
+                        <img src="imagens/cebola.png" alt="Cebola">
+                        Cebola
+                    </li>
+                    <li class="item-pre-cadastrado">
+                        <img src="imagens/feijao.png" alt="Feijão">
+                        Feijão
+                    </li>
+                    <li class="item-pre-cadastrado">
+                        <img src="imagens/frango.png" alt="Frango">
+                        Frango
+                    </li>
+                    <li class="item-pre-cadastrado">
+                        <img src="imagens/leite.png" alt="Leite">
+                        Leite
+                    </li>
+                    <li class="item-pre-cadastrado">
+                        <img src="imagens/macarrao.png" alt="Macarrão">
+                        Macarrão
+                    </li>
+                    <li class="item-pre-cadastrado">
+                        <img src="imagens/maca.png" alt="Maçã">
+                        Maçã
+                    </li>
+                    <li class="item-pre-cadastrado">
+                        <img src="imagens/ovos.png" alt="Ovos">
+                        Ovos
+                    </li>
+                    <li class="item-pre-cadastrado">
+                        <img src="imagens/oleo.png" alt="Óleo">
+                        Óleo
+                    </li>
+                    <li class="item-pre-cadastrado">
+                        <img src="imagens/queijo.png" alt="Queijo">
+                        Queijo
+                    </li>
+                    <li class="item-pre-cadastrado">
+                        <img src="imagens/sal.png" alt="Sal">
+                        Sal
+                    </li>
+                    <li class="item-pre-cadastrado">
+                        <img src="imagens/tomate.png" alt="Tomate">
+                        Tomate
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="coluna-central">
+            <h1>Lista de Compras</h1>
+            <div class="input-container">
+                <input type="text" id="produtoInput" placeholder="Adicionar Produto">
+                <input type="url" id="imagemInput" placeholder="Link da Imagem">
+                <button id="adicionarProduto">Adicionar</button>
+            </div>
+            <ul id="listaProdutos"></ul>
+            <button class="limpar-todos" id="limparTodos">Limpar Todos os Itens</button>
+        </div>
+
+        <div class="coluna"></div>
+    </div>
+
+    <script>
+        function carregarProdutos() {
+            const produtos = JSON.parse(localStorage.getItem('produtos')) || [];
+            const listaProdutos = document.getElementById('listaProdutos');
+            listaProdutos.innerHTML = '';
+
+            produtos.sort((a, b) => a.nome.localeCompare(b.nome));
+
+            produtos.forEach((produto, index) => {
+                const li = document.createElement('li');
+                li.className = produto.comprado ? 'comprado' : '';
+
+                const checkboxContainer = document.createElement('div');
+                checkboxContainer.className = 'checkbox-container';
+
+                const checkbox = document.createElement('input');
+                checkbox.type = 'checkbox';
+                checkbox.checked = produto.comprado || false;
+                checkbox.onchange = () => marcarComprado(produtos[index], checkbox.checked);
+
+                checkboxContainer.appendChild(checkbox);
+
+                const textoProduto = document.createElement('span');
+                textoProduto.className = 'produto-texto';
+                textoProduto.textContent = capitalizar(produto.nome);
+
+                li.appendChild(checkboxContainer);
+                li.appendChild(textoProduto);
+
+                const valorContainer = document.createElement('div');
+                valorContainer.className = 'valor-container';
+
+                const precoInput = document.createElement('input');
+                precoInput.type = 'text';
+                precoInput.className = 'preco-input';
+                precoInput.placeholder = 'R$ 0,00';
+                precoInput.value = produto.preco || 'R$ 0,00';
+                precoInput.oninput = () => formatarPreco(precoInput);
+
+                const quantidadeInput = document.createElement('input');
+                quantidadeInput.type = 'number';
+                quantidadeInput.className = 'quantidade-input';
+                quantidadeInput.placeholder = 'Qtd';
+                quantidadeInput.value = produto.quantidade || 1;
+                quantidadeInput.onchange = () => {
+                    produto.quantidade = quantidadeInput.value;
+                    atualizarProduto(produto);
+                };
+
+                valorContainer.appendChild(precoInput);
+                valorContainer.appendChild(quantidadeInput);
+
+                li.appendChild(valorContainer);
+
+                const removerBtn = document.createElement('button');
+                removerBtn.textContent = 'Remover';
+                removerBtn.className = 'remove';
+                removerBtn.onclick = () => removerProduto(produto.nome);
+
+                li.appendChild(removerBtn);
+
+                const imagemProduto = document.createElement('img');
+                imagemProduto.src = produto.imagem || `imagens/${produto.nome.toLowerCase()}.png`;
+                imagemProduto.alt = produto.nome;
+                imagemProduto.style.width = '40px';
+                imagemProduto.style.height = '40px';
+                imagemProduto.style.marginRight = '10px';
+
+                li.prepend(imagemProduto);
+
+                listaProdutos.appendChild(li);
+            });
+        }
+
+        function capitalizar(nome) {
+            return nome.charAt(0).toUpperCase() + nome.slice(1).toLowerCase();
+        }
+
+        function formatarPreco(input) {
+            let valor = input.value.replace(/[^\d]/g, '');
+            if (valor.length === 0) {
+                input.value = 'R$ 0,00';
+                return;
+            }
+
+            const formatador = new Intl.NumberFormat('pt-BR', {
+                style: 'currency',
+                currency: 'BRL',
+            });
+
+            let reais = valor.slice(0, -2);
+            let centavos = valor.slice(-2);
+            if (reais.length === 0) reais = '0';
+
+            input.value = formatador.format(reais + '.' + centavos);
+        }
+
+        function adicionarProduto() {
+            const produtoInput = document.getElementById('produtoInput');
+            const imagemInput = document.getElementById('imagemInput');
+            const produtoNome = produtoInput.value.trim();
+            const produtoImagem = imagemInput.value.trim();
+
+            if (produtoNome) {
+                const produtos = JSON.parse(localStorage.getItem('produtos')) || [];
+                const existeProduto = produtos.some(produto => produto.nome.toLowerCase() === produtoNome.toLowerCase());
+                if (existeProduto) {
+                    alert('Produto já existe na lista!');
+                    return;
+                }
+
+                produtos.push({ nome: produtoNome, imagem: produtoImagem, comprado: false });
+                localStorage.setItem('produtos', JSON.stringify(produtos));
+
+                produtoInput.value = '';
+                imagemInput.value = '';
+                carregarProdutos();
+            } else {
+                alert('Por favor, insira um produto válido.');
+            }
+        }
+
+        function marcarComprado(produto, comprado) {
+            const produtos = JSON.parse(localStorage.getItem('produtos')) || [];
+            const index = produtos.findIndex(p => p.nome.toLowerCase() === produto.nome.toLowerCase());
+            if (index !== -1) {
+                produtos[index].comprado = comprado;
+                localStorage.setItem('produtos', JSON.stringify(produtos));
+                carregarProdutos();
+            }
+        }
+
+        function removerProduto(nome) {
+            const produtos = JSON.parse(localStorage.getItem('produtos')) || [];
+            const index = produtos.findIndex(produto => produto.nome.toLowerCase() === nome.toLowerCase());
+            if (index !== -1) {
+                produtos.splice(index, 1);
+                localStorage.setItem('produtos', JSON.stringify(produtos));
+                carregarProdutos();
+            }
+        }
+
+        function atualizarProduto(produto) {
+            const produtos = JSON.parse(localStorage.getItem('produtos')) || [];
+            const index = produtos.findIndex(p => p.nome.toLowerCase() === produto.nome.toLowerCase());
+            if (index !== -1) {
+                produtos[index] = produto;
+                localStorage.setItem('produtos', JSON.stringify(produtos));
+            }
+        }
+
+        function limparTodos() {
+            if (confirm('Tem certeza de que deseja limpar todos os produtos?')) {
+                localStorage.removeItem('produtos');
+                carregarProdutos();
+            }
+        }
+
+        function adicionarPreCadastrado(nome) {
+            const produtos = JSON.parse(localStorage.getItem('produtos')) || [];
+            const existeProduto = produtos.some(produto => produto.nome.toLowerCase() === nome.toLowerCase());
+            if (!existeProduto) {
+                produtos.push({ nome, comprado: false });
+                localStorage.setItem('produtos', JSON.stringify(produtos));
+                carregarProdutos();
+            } else {
+                alert('Produto já existe na lista!');
+            }
+        }
+
+        document.getElementById('mostrarPreCadastrados').addEventListener('click', () => {
+            const preCadastrados = document.getElementById('preCadastrados');
+            preCadastrados.style.display = preCadastrados.style.display === 'none' || preCadastrados.style.display === '' ? 'block' : 'none';
+        });
+
+        document.querySelectorAll('.item-pre-cadastrado').forEach(item => {
+            item.addEventListener('click', () => {
+                const altText = item.querySelector('img').alt; // Obtém o texto do atributo alt
+                adicionarPreCadastrado(altText); // Usa o texto do alt para adicionar o produto
+            });
+        });
+
+        document.getElementById('adicionarProduto').addEventListener('click', adicionarProduto);
+        document.getElementById('produtoInput').addEventListener('keypress', (event) => {
+            if (event.key === 'Enter') {
+                adicionarProduto();
+            }
+        });
+        document.getElementById('limparTodos').addEventListener('click', limparTodos);
+
+        window.onload = carregarProdutos;
+    </script>
+</body>
+</html>
